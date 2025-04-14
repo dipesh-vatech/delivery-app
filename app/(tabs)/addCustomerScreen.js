@@ -1,29 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TextInput,
-  Button,
+  TouchableOpacity,
+  Text,
   StyleSheet,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { addCustomer, verifySchema, verifyTables } from '../../src/db/database';
+import { addCustomer } from '../../src/db/database';
+import { Ionicons } from '@expo/vector-icons';
 
 const AddCustomerScreen = () => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [contact, setContact] = useState('');
-
-  useEffect(() => {
-    // Verify schema on screen load
-    const checkSchema = async () => {
-      const schema = await verifySchema();
-      console.log('Schema details:', schema);
-    };
-
-    checkSchema();
-  }, []);
 
   const handleAddCustomer = async () => {
     if (!name.trim()) {
@@ -49,12 +41,13 @@ const AddCustomerScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={100}
     >
+      <Text style={styles.heading}>Add New Customer</Text>
+
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder="Customer Name"
         value={name}
         onChangeText={setName}
-        onFocus={() => console.log('Name field focused!')}
       />
       <TextInput
         style={styles.input}
@@ -64,14 +57,16 @@ const AddCustomerScreen = () => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Contact"
+        placeholder="Contact Number"
         value={contact}
         onChangeText={setContact}
         keyboardType="phone-pad"
       />
-      <Button title="Add Customer" onPress={handleAddCustomer} />
-      <Button title="Verify Schema" onPress={verifySchema} />
-       <Button title="Verify Table" onPress={verifyTables} />{/* Test the schema */}
+
+      <TouchableOpacity style={styles.button} onPress={handleAddCustomer}>
+        <Ionicons name="person-add" size={24} color="white" />
+        <Text style={styles.buttonText}>Add Customer</Text>
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 };
@@ -80,15 +75,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    padding: 20,
+    backgroundColor: '#f8f9fa',
+  },
+  heading: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 12,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
     backgroundColor: '#fff',
+    fontSize: 16,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007BFF',
+    padding: 15,
+    borderRadius: 8,
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
 });
 

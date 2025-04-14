@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet, Text } from 'react-native';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useColorScheme } from 'react-native'; // React Native's built-in hook
 import { addDelivery, getAllCustomers } from '../../src/db/database';
+import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'react-native';
 
 const AddDeliveryScreen = () => {
   const [customers, setCustomers] = useState([]);
@@ -11,9 +21,7 @@ const AddDeliveryScreen = () => {
   const [date, setDate] = useState(new Date());
   const [quantity, setQuantity] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const colorScheme = useColorScheme(); // Detect light or dark mode
-  const isDarkMode = colorScheme === 'dark';
+  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -21,11 +29,9 @@ const AddDeliveryScreen = () => {
         const customerList = await getAllCustomers();
         setCustomers(customerList);
       } catch (error) {
-        console.error('Error fetching customers:', error);
         Alert.alert('Error', 'Failed to fetch customers. Please try again later.');
       }
     };
-
     fetchCustomers();
   }, []);
 
@@ -50,23 +56,25 @@ const AddDeliveryScreen = () => {
       setDate(new Date());
       setQuantity('');
     } catch (error) {
-      console.error('Error adding delivery:', error);
       Alert.alert('Error', 'Failed to add delivery. Please try again.');
     }
   };
 
   const handleDateChange = (event, selectedDate) => {
     if (event.type === 'set') {
-      const currentDate = selectedDate || date;
-      setDate(currentDate);
-    } else {
-      console.log('Date selection cancelled');
+      setDate(selectedDate || date);
     }
     setShowDatePicker(false);
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={[styles.container, isDarkMode && styles.darkContainer]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={100}
+    >
+      <Text style={[styles.heading, isDarkMode && styles.headingDark]}>Add New Delivery</Text>
+
       {customers.length === 0 ? (
         <Text style={[styles.noCustomersText, isDarkMode && styles.noCustomersTextDark]}>
           No customers available. Please add customers first.
@@ -84,15 +92,15 @@ const AddDeliveryScreen = () => {
         </Picker>
       )}
 
-      <Button title="Select Date" onPress={() => setShowDatePicker(true)} />
+      <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+        <Ionicons name="calendar-outline" size={24} color="white" />
+        <Text style={styles.dateButtonText}>Select Date</Text>
+      </TouchableOpacity>
+
       {showDatePicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-        />
+        <DateTimePicker value={date} mode="date" display="default" onChange={handleDateChange} />
       )}
+
       <Text style={[styles.dateText, isDarkMode && styles.dateTextDark]}>
         Selected Date: {date.toDateString()}
       </Text>
@@ -104,8 +112,12 @@ const AddDeliveryScreen = () => {
         onChangeText={setQuantity}
         keyboardType="numeric"
       />
-      <Button title="Add Delivery" onPress={handleAddDelivery} />
-    </View>
+
+      <TouchableOpacity style={styles.button} onPress={handleAddDelivery}>
+        <Ionicons name="add-circle" size={24} color="white" />
+        <Text style={styles.buttonText}>Add Delivery</Text>
+      </TouchableOpacity>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -113,31 +125,61 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    padding: 20,
+    backgroundColor: '#f8f9fa',
+  },
+  darkContainer: {
+    backgroundColor: '#222',
+  },
+  heading: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+  },
+  headingDark: {
+    color: '#fff',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 12,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
     backgroundColor: '#fff',
+    fontSize: 16,
   },
   picker: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 12,
+    borderRadius: 8,
+    marginBottom: 16,
     backgroundColor: '#fff',
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007BFF',
+    padding: 15,
+    borderRadius: 8,
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  dateButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   dateText: {
     fontSize: 16,
     marginBottom: 12,
     textAlign: 'center',
-    color: '#000', // Default for light mode
+    color: '#000',
   },
   dateTextDark: {
-    color: '#fff', // Color for dark mode
+    color: '#fff',
   },
   noCustomersText: {
     fontSize: 16,
@@ -146,7 +188,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   noCustomersTextDark: {
-    color: 'orange', // Adjust color for better visibility in dark mode
+    color: 'orange',
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 8,
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
 });
 
