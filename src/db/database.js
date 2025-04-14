@@ -98,4 +98,83 @@ export const addCustomer = async (name, address, contact) => {
   }
 };
 
+export const addDelivery = async (customerId, date, quantity) => {
+  try {
+    const db = await openDB();
+    const result = await db.runAsync(
+      'INSERT INTO deliveries (customer_id, date, quantity) VALUES (?, ?, ?)',
+      customerId,
+      date.trim(),
+      quantity
+    );
+    console.log('Delivery added:', { customerId, date, quantity, result });
+    return result;
+  } catch (error) {
+    console.error('Error adding delivery:', error);
+    throw error;
+  }
+};
+
+export const getAllCustomers = async () => {
+  try {
+    const db = await openDB();
+    const customers = await db.getAllAsync('SELECT * FROM customers');
+    console.log('Fetched customers:', customers);
+    return customers;
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    throw error;
+  }
+};
+
+export const getCustomerDeliveries = async (customerId, month, year) => {
+  try {
+    const db = await openDB();
+    const result = await db.getAllAsync(
+      `
+      SELECT
+        deliveries.date,
+        SUM(deliveries.quantity) AS total_quantity
+      FROM deliveries
+      WHERE deliveries.customer_id = ? AND strftime('%Y-%m', deliveries.date) = ?
+      GROUP BY deliveries.date
+      ORDER BY deliveries.date ASC;
+      `,
+      [customerId, `${year}-${month}`]
+    );
+    console.log(`Deliveries fetched for customer ${customerId}:`, result);
+    return result;
+  } catch (error) {
+    console.error('Error fetching deliveries for customer:', error);
+    throw error;
+  }
+};
+
+
+export const getDeliveriesByDate = async (month, year) => {
+  try {
+    const db = await openDB();
+    const result = await db.getAllAsync(
+      `
+      SELECT
+        customers.name AS customerName,
+        deliveries.customer_id,
+        deliveries.date,
+        SUM(deliveries.quantity) AS total_quantity
+      FROM deliveries
+      JOIN customers ON deliveries.customer_id = customers.id
+      WHERE strftime('%Y-%m', deliveries.date) = ?
+      GROUP BY deliveries.customer_id, deliveries.date
+      ORDER BY customers.name ASC, deliveries.date ASC;
+      `,
+      [`${year}-${month}`] // Format: YYYY-MM
+    );
+    console.log('Deliveries by date fetched:', result);
+    return result;
+  } catch (error) {
+    console.error('Error fetching deliveries by date:', error);
+    throw error;
+  }
+};
+
 export { openDB };

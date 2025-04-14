@@ -61,6 +61,17 @@ export default function RootLayout() {
           name="screen/addCustomerScreen"
           options={{ title: 'Add Customer' }}
         />
+
+        <Stack.Screen
+          name="screen/addDeliveryScreen"
+          options={{ title: 'Add Delivery' }}
+        />
+
+        <Stack.Screen
+          name="screen/monthlySummariesScreen"
+          options={{ title: 'Monthly Summaries' }}
+        />
+
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

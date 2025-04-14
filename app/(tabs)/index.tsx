@@ -8,6 +8,11 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Button title="Add Customer" onPress={() => router.push('screen/addCustomerScreen')} />
+      <Button title="Add Delivery" onPress={() => router.push('screen/addDeliveryScreen')} />
+      <Button
+        title="View Monthly Summaries"
+        onPress={() => router.push('screen/monthlySummariesScreen')}
+      />
     </View>
   );
 }
