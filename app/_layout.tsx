@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { createTables, verifyTables } from '../src/db/database';
+import { createTables } from '../src/db/database';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -19,32 +19,25 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    const initializeDatabase = async () => {
-      try {
-        console.log('Initializing database...');
-        await createTables(); // Ensure tables are created
-
-        const tables = await verifyTables(); // Verify existing tables
-        if (!tables || tables.length === 0) {
-          console.warn('No tables found in the database. Ensure createTables executed properly.');
-        } else {
-          console.log('Verified tables:', tables);
+      const initializeDatabase = async () => {
+        try {
+//           console.log('Initializing database...');
+          await createTables(); // ✅ Ensure tables are created
+        } catch (error) {
+          console.error('Error during database initialization:', error);
+        } finally {
+          SplashScreen.hideAsync(); // ✅ Ensure the splash screen always hides
         }
-      } catch (error) {
-        console.error('Error during database initialization:', error);
-      } finally {
-        SplashScreen.hideAsync(); // Ensure the splash screen always hides
+      };
+
+      if (loaded) {
+        initializeDatabase(); // ✅ Call database initialization logic
       }
-    };
+    }, [loaded]);
 
-    if (loaded) {
-      initializeDatabase(); // Call database initialization logic
+    if (!loaded) {
+      return null;
     }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

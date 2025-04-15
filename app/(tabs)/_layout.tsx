@@ -57,6 +57,28 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="calendar-outline" size={28} color={color} />,
         }}
       />
+
+      <Tabs.Screen
+              name="overviewDashboardScreen"
+              options={{
+                title: 'Dashboard',
+                tabBarIcon: ({ color }) => <Ionicons name="stats-chart-outline" size={28} color={color} />,
+              }}
+            />
+
+      <Tabs.Screen
+        name="customerListScreen"
+        options={{
+          title: 'Customers',
+          tabBarIcon: ({ color }) => <Ionicons name="people-circle" size={24} color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="customerProfileScreen"
+        options={{ title: 'Profile', href: null }} // ✅ Hide it from tabs since it needs a customer ID
+      />
+
     </Tabs>
   );
 }

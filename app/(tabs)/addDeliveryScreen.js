@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   TextInput,
@@ -23,17 +24,22 @@ const AddDeliveryScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const isDarkMode = useColorScheme() === 'dark';
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const customerList = await getAllCustomers();
-        setCustomers(customerList);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to fetch customers. Please try again later.');
-      }
-    };
-    fetchCustomers();
-  }, []);
+  // ✅ Ensure fresh customer data loads when navigating to the screen
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCustomers = async () => {
+        try {
+//          console.log("Fetching updated customer list...");
+          const customerList = await getAllCustomers();
+          setCustomers(customerList);
+        } catch (error) {
+          Alert.alert('Error', 'Failed to fetch customers. Please try again later.');
+        }
+      };
+
+      fetchCustomers();
+    }, [])
+  );
 
   const handleAddDelivery = async () => {
     if (!selectedCustomerId) {
@@ -122,89 +128,20 @@ const AddDeliveryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#f8f9fa',
-  },
-  darkContainer: {
-    backgroundColor: '#222',
-  },
-  heading: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
-  },
-  headingDark: {
-    color: '#fff',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    fontSize: 16,
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-  },
-  dateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007BFF',
-    padding: 15,
-    borderRadius: 8,
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  dateButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  dateText: {
-    fontSize: 16,
-    marginBottom: 12,
-    textAlign: 'center',
-    color: '#000',
-  },
-  dateTextDark: {
-    color: '#fff',
-  },
-  noCustomersText: {
-    fontSize: 16,
-    color: 'red',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  noCustomersTextDark: {
-    color: 'orange',
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#28a745',
-    padding: 15,
-    borderRadius: 8,
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f8f9fa' },
+  darkContainer: { backgroundColor: '#222' },
+  heading: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
+  headingDark: { color: '#fff' },
+  input: { borderWidth: 1, borderColor: '#ccc', padding: 12, borderRadius: 8, marginBottom: 16, backgroundColor: '#fff', fontSize: 16 },
+  picker: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, marginBottom: 16, backgroundColor: '#fff' },
+  dateButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#007BFF', padding: 15, borderRadius: 8, justifyContent: 'center', marginBottom: 10 },
+  dateButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold', marginLeft: 10 },
+  dateText: { fontSize: 16, marginBottom: 12, textAlign: 'center', color: '#000' },
+  dateTextDark: { color: '#fff' },
+  noCustomersText: { fontSize: 16, color: 'red', textAlign: 'center', marginBottom: 20 },
+  noCustomersTextDark: { color: 'orange' },
+  button: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#28a745', padding: 15, borderRadius: 8, justifyContent: 'center', marginTop: 10 },
+  buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold', marginLeft: 10 },
 });
 
 export default AddDeliveryScreen;

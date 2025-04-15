@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, FlatList, Text, Alert, StyleSheet, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { getAllCustomers, getCustomerDeliveries, getDeliveriesByDate } from '../../src/db/database';
@@ -9,19 +10,24 @@ const MonthlySummariesScreen = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [customers, setCustomers] = useState([]);
   const [summaries, setSummaries] = useState([]);
+  const [totalQuantity, setTotalQuantity] = useState(0); // ✅ Added state for total quantity
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const customerList = await getAllCustomers();
-        setCustomers(customerList);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to fetch customers.');
-      }
-    };
-    fetchCustomers();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchCustomers = async () => {
+        try {
+//          console.log("Fetching updated customer list for MonthlySummariesScreen...");
+          const customerList = await getAllCustomers();
+          setCustomers(customerList);
+        } catch (error) {
+          Alert.alert('Error', 'Failed to fetch customers.');
+        }
+      };
+
+      fetchCustomers();
+    }, [])
+  );
 
   useEffect(() => {
     const fetchSummaries = async () => {
@@ -31,6 +37,10 @@ const MonthlySummariesScreen = () => {
           ? await getCustomerDeliveries(selectedCustomerId, month, year)
           : await getDeliveriesByDate(month, year);
         setSummaries(result);
+
+        // ✅ Calculate total quantity delivered
+        const totalDelivered = result.reduce((sum, item) => sum + item.total_quantity, 0);
+        setTotalQuantity(totalDelivered); // Store total quantity
       } catch (error) {
         Alert.alert('Error', 'Failed to fetch summaries.');
       } finally {
@@ -63,6 +73,10 @@ const MonthlySummariesScreen = () => {
         ))}
       </Picker>
 
+      {selectedCustomerId && (
+        <Text style={styles.totalQuantity}>Total Delivered: {totalQuantity} units</Text>
+      )}
+
       {loading ? (
         <ActivityIndicator size="large" color="#007BFF" />
       ) : (
@@ -86,6 +100,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#f8f9fa' },
   heading: { fontSize: 20, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
   picker: { marginBottom: 10, backgroundColor: '#fff' },
+  totalQuantity: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', color: '#007BFF', marginBottom: 10 },
   summaryItem: { padding: 10, backgroundColor: '#e3e3e3', marginVertical: 5, borderRadius: 5 },
   deliveryDate: { fontSize: 16, fontWeight: 'bold' },
   deliveryQuantity: { fontSize: 14 },
