@@ -3,6 +3,9 @@
     "name": "MilkDeliveryApp",
     "slug": "MilkDeliveryApp",
     "version": "1.0.0",
+    "extra": {
+      "userRole": "driver"
+    },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",

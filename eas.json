@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">= 16.3.1",
+    "appVersionSource": "remote",
+    "requireCommit": true
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview-driver": {
+      "android": {
+        "distribution": "internal",
+        "env": {
+          "USER_ROLE": "driver"
+        }
+      }
+    },
+    "preview-admin": {
+      "android": {
+        "distribution": "internal",
+        "env": {
+          "USER_ROLE": "admin"
+        }
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
