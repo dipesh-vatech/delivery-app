@@ -4,7 +4,13 @@
     "slug": "MilkDeliveryApp",
     "version": "1.0.0",
     "extra": {
-      "userRole": "driver"
+      "userRole": "driver",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b65cca07-43e6-42b3-9c6f-5664468f9d60"
+      }
     },
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -18,7 +24,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dipesh231.MilkDeliveryApp"
     },
     "web": {
       "bundler": "metro",
