@@ -9,20 +9,9 @@
       "developmentClient": true,
       "distribution": "internal"
     },
-    "preview-driver": {
+    "preview": {
       "android": {
-        "distribution": "internal",
-        "env": {
-          "USER_ROLE": "driver"
-        }
-      }
-    },
-    "preview-admin": {
-      "android": {
-        "distribution": "internal",
-        "env": {
-          "USER_ROLE": "admin"
-        }
+        "distribution": "internal"
       }
     },
     "production": {

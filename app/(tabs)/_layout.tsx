@@ -1,15 +1,12 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
-import Constants from "expo-constants"; // ✅ Import Expo Constants
 
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
-
-const userRole = Constants.expoConfig.extra.userRole;
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -61,15 +58,21 @@ export default function TabLayout() {
         }}
       />
 
-      {/* ✅ Only Show Dashboard Tab for Admins */}
-            {userRole === "admin" && (
-              <Tabs.Screen name="overviewDashboardScreen" options={{ title: "Dashboard", tabBarIcon: ({ color }) => <Ionicons name="stats-chart-outline" size={28} color={color} /> }} />
-            )}
+      <Tabs.Screen
+              name="overviewDashboardScreen"
+              options={{
+                title: 'Dashboard',
+                tabBarIcon: ({ color }) => <Ionicons name="stats-chart-outline" size={28} color={color} />,
+              }}
+            />
 
-      {/* ✅ Additional Admin Features */}
-            {userRole === "admin" && (
-              <Tabs.Screen name="customerListScreen" options={{ title: "Customers", tabBarIcon: ({ color }) => <Ionicons name="people-circle" size={24} color={color} /> }} />
-            )}
+      <Tabs.Screen
+        name="customerListScreen"
+        options={{
+          title: 'Customers',
+          tabBarIcon: ({ color }) => <Ionicons name="people-circle" size={24} color={color} />,
+        }}
+      />
 
       <Tabs.Screen
         name="customerProfileScreen"
