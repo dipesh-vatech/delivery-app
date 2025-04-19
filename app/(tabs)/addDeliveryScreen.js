@@ -21,15 +21,14 @@ const AddDeliveryScreen = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [date, setDate] = useState(new Date());
   const [quantity, setQuantity] = useState('');
+  const [milkType, setMilkType] = useState('buffalo'); // ✅ Milk type state
   const [showDatePicker, setShowDatePicker] = useState(false);
   const isDarkMode = useColorScheme() === 'dark';
 
-  // ✅ Ensure fresh customer data loads when navigating to the screen
   useFocusEffect(
     React.useCallback(() => {
       const fetchCustomers = async () => {
         try {
-//          console.log("Fetching updated customer list...");
           const customerList = await getAllCustomers();
           setCustomers(customerList);
         } catch (error) {
@@ -56,11 +55,12 @@ const AddDeliveryScreen = () => {
     }
 
     try {
-      await addDelivery(selectedCustomerId, date.toISOString().split('T')[0], parseFloat(quantity));
+      await addDelivery(selectedCustomerId, date.toISOString().split('T')[0], parseFloat(quantity), milkType); // ✅ Include milk type
       Alert.alert('Success', 'Delivery added successfully!');
       setSelectedCustomerId('');
       setDate(new Date());
       setQuantity('');
+      setMilkType('buffalo'); // Reset to default
     } catch (error) {
       Alert.alert('Error', 'Failed to add delivery. Please try again.');
     }
@@ -111,6 +111,17 @@ const AddDeliveryScreen = () => {
         Selected Date: {date.toDateString()}
       </Text>
 
+      {/* ✅ Milk Type Selector */}
+      <Text style={styles.label}>Select Milk Type:</Text>
+      <Picker
+        selectedValue={milkType}
+        onValueChange={setMilkType}
+        style={styles.picker}
+      >
+        <Picker.Item label="Buffalo Milk" value="buffalo" />
+        <Picker.Item label="Cow Milk" value="cow" />
+      </Picker>
+
       <TextInput
         style={styles.input}
         placeholder="Quantity"
@@ -132,6 +143,7 @@ const styles = StyleSheet.create({
   darkContainer: { backgroundColor: '#222' },
   heading: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', color: '#333' },
   headingDark: { color: '#fff' },
+  label: { fontSize: 18, fontWeight: 'bold', marginBottom: 5, textAlign: 'center' }, // ✅ Label for Milk Type
   input: { borderWidth: 1, borderColor: '#ccc', padding: 12, borderRadius: 8, marginBottom: 16, backgroundColor: '#fff', fontSize: 16 },
   picker: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, marginBottom: 16, backgroundColor: '#fff' },
   dateButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#007BFF', padding: 15, borderRadius: 8, justifyContent: 'center', marginBottom: 10 },

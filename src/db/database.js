@@ -28,12 +28,19 @@ export const createTables = async () => {
       );
 
       CREATE TABLE IF NOT EXISTS deliveries (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        customer_id INTEGER NOT NULL,
-        date TEXT NOT NULL,
-        quantity REAL NOT NULL,
-        FOREIGN KEY (customer_id) REFERENCES customers(id)
-      );
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              customer_id INTEGER NOT NULL,
+              date TEXT NOT NULL,
+              quantity REAL NOT NULL,
+              milk_type TEXT NOT NULL DEFAULT 'buffalo',
+              FOREIGN KEY (customer_id) REFERENCES customers(id)
+            );
+
+      CREATE TABLE IF NOT EXISTS milk_prices (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              milk_type TEXT UNIQUE,
+              price REAL NOT NULL
+            );
 
       CREATE TABLE IF NOT EXISTS summaries (
         customer_id INTEGER NOT NULL,
@@ -70,19 +77,75 @@ export const addCustomer = async (name, address, contact) => {
   }
 };
 
-export const addDelivery = async (customerId, date, quantity) => {
+export const addDelivery = async (customerId, date, quantity, milkType) => {
   try {
     const db = await openDB();
     const result = await db.runAsync(
-      'INSERT INTO deliveries (customer_id, date, quantity) VALUES (?, ?, ?)',
+      'INSERT INTO deliveries (customer_id, date, quantity, milk_type) VALUES (?, ?, ?, ?)',
       customerId,
       date.trim(),
-      quantity
+      quantity,
+      milkType
     );
-//    console.log('Delivery added:', { customerId, date, quantity, result });
     return result;
   } catch (error) {
     console.error('Error adding delivery:', error);
+    throw error;
+  }
+};
+
+// ✅ Set Milk Price
+export const setMilkPrice = async (milkType, price) => {
+  try {
+    const db = await openDB();
+    await db.runAsync(
+      'INSERT INTO milk_prices (milk_type, price) VALUES (?, ?) ON CONFLICT(milk_type) DO UPDATE SET price = excluded.price',
+      milkType,
+      price
+    );
+  } catch (error) {
+    console.error('Error updating milk price:', error);
+    throw error;
+  }
+};
+
+// ✅ Get Milk Price
+export const getMilkPrice = async (milkType) => {
+  try {
+    const db = await openDB();
+    const result = await db.getAllAsync(
+      'SELECT price FROM milk_prices WHERE milk_type = ?',
+      [milkType]
+    );
+    return result[0]?.price || 0;
+  } catch (error) {
+    console.error('Error fetching milk price:', error);
+    throw error;
+  }
+};
+
+// ✅ Get Total Amount for Customer
+export const getCustomerTotalAmount = async (customerId, month, year) => {
+  try {
+    const db = await openDB();
+
+    // Fetch deliveries grouped by milk type
+    const deliveries = await db.getAllAsync(
+      `SELECT milk_type, SUM(quantity) AS total_quantity FROM deliveries WHERE customer_id = ? AND strftime('%Y-%m', date) = ? GROUP BY milk_type`,
+      [customerId, `${year}-${month}`]
+    );
+
+    let totalAmount = 0;
+
+    // Compute total cost dynamically
+    for (const item of deliveries) {
+      const price = await getMilkPrice(item.milk_type);
+      totalAmount += item.total_quantity * price;
+    }
+
+    return totalAmount;
+  } catch (error) {
+    console.error('Error fetching customer total amount:', error);
     throw error;
   }
 };
@@ -106,7 +169,8 @@ export const getCustomerDeliveries = async (customerId, month, year) => {
       `
       SELECT
         deliveries.date,
-        SUM(deliveries.quantity) AS total_quantity
+        SUM(deliveries.quantity) AS total_quantity,
+        GROUP_CONCAT(deliveries.milk_type || ' - ' || deliveries.quantity || ' L', ', ') AS milk_details
       FROM deliveries
       WHERE deliveries.customer_id = ? AND strftime('%Y-%m', deliveries.date) = ?
       GROUP BY deliveries.date
@@ -114,7 +178,6 @@ export const getCustomerDeliveries = async (customerId, month, year) => {
       `,
       [customerId, `${year}-${month}`]
     );
-//    console.log(`Deliveries fetched for customer ${customerId}:`, result);
     return result;
   } catch (error) {
     console.error('Error fetching deliveries for customer:', error);
@@ -230,13 +293,31 @@ export const getTotalQuantityForMonth = async (month, year) => {
   try {
     const db = await openDB();
     const result = await db.getAllAsync(
-      `SELECT SUM(quantity) AS total_quantity FROM deliveries WHERE date BETWEEN ? AND ?`,
-      [`${year}-${month}-01`, `${year}-${month}-31`] // ✅ Ensures query checks full month range
+      `
+      SELECT
+        milk_type,
+        SUM(quantity) AS total_quantity
+      FROM deliveries
+      WHERE strftime('%Y-%m', date) = ?
+      GROUP BY milk_type;
+      `,
+      [`${year}-${month}`]
     );
-//    console.log("Total quantity result:", result); // Debug log
-    return result[0]?.total_quantity || 0;
+
+    // ✅ Structure response correctly
+    let buffaloMilk = 0;
+    let cowMilk = 0;
+    result.forEach(item => {
+      if (item.milk_type === 'buffalo') {
+        buffaloMilk = item.total_quantity;
+      } else if (item.milk_type === 'cow') {
+        cowMilk = item.total_quantity;
+      }
+    });
+
+    return { buffaloMilk, cowMilk };
   } catch (error) {
-    console.error("Error fetching total quantity:", error);
+    console.error('Error fetching milk quantity:', error);
     throw error;
   }
 };

@@ -48,8 +48,6 @@ const CustomerProfileScreen = () => {
         setAddress(customerData.address);
         setContact(customerData.contact);
 
-        const deliveryData = await getCustomerOrderHistory(customerId);
-        setDeliveries(deliveryData);
       } catch (error) {
         Alert.alert('Error', 'Failed to load customer details.');
       }
@@ -118,19 +116,6 @@ const CustomerProfileScreen = () => {
               </View>
             </View>
           </Modal>
-
-          <Text style={[styles.subHeading, isDarkMode && styles.subHeadingDark]}>Delivery History</Text>
-          <FlatList
-            data={deliveries}
-            keyExtractor={(item) => `${item.id}`}
-            renderItem={({ item }) => (
-              <View style={styles.deliveryItem}>
-                <Text style={styles.deliveryText}>Date: {item.date}</Text>
-                <Text style={styles.deliveryText}>Quantity: {item.quantity}</Text>
-              </View>
-            )}
-            ListEmptyComponent={<Text style={styles.emptyText}>No deliveries found.</Text>}
-          />
         </>
       )}
     </View>

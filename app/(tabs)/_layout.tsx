@@ -37,7 +37,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="addCustomerScreen"
         options={{
-          title: 'Add Customer',
+          title: 'Customer',
           tabBarIcon: ({ color }) => <Ionicons name="person-add-outline" size={28} color={color} />,
         }}
       />
@@ -45,7 +45,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="addDeliveryScreen"
         options={{
-          title: 'Add Delivery',
+          title: 'Delivery',
           tabBarIcon: ({ color }) => <Ionicons name="cube-outline" size={28} color={color} />,
         }}
       />
@@ -69,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="customerListScreen"
         options={{
-          title: 'Customers',
+          title: 'Directory',
           tabBarIcon: ({ color }) => <Ionicons name="people-circle" size={24} color={color} />,
         }}
       />
@@ -79,6 +79,21 @@ export default function TabLayout() {
         options={{ title: 'Profile', href: null }} // ✅ Hide it from tabs since it needs a customer ID
       />
 
+      <Tabs.Screen
+        name="milkPriceUpdateScreen"
+        options={{
+          title: 'Milk Prices',
+          href: null,  // ✅ This prevents the tab from showing in navigation
+        }}
+      />
+
+      <Tabs.Screen
+        name="authScreen"
+        options={{
+          title: 'Update Prices',
+          tabBarIcon: ({ color }) => <Ionicons name="lock-closed-outline" size={28} color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

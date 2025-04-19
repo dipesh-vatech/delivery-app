@@ -12,7 +12,8 @@ const OverviewDashboardScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [customerNames, setCustomerNames] = useState([]);
   const [totalDeliveries, setTotalDeliveries] = useState(0);
-  const [totalQuantity, setTotalQuantity] = useState(0);
+  const [buffaloQuantity, setBuffaloQuantity] = useState(0);  // ✅ Separate Buffalo milk quantity
+  const [cowQuantity, setCowQuantity] = useState(0);  // ✅ Separate Cow milk quantity
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -23,12 +24,13 @@ const OverviewDashboardScreen = () => {
         setLoading(true);
         try {
           const deliveriesCount = await getTotalDeliveriesForMonth(selectedMonth.toString().padStart(2, '0'), selectedYear);
-          const quantitySum = await getTotalQuantityForMonth(selectedMonth.toString().padStart(2, '0'), selectedYear);
+          const { buffaloMilk, cowMilk } = await getTotalQuantityForMonth(selectedMonth.toString().padStart(2, '0'), selectedYear);
           const customersCount = await getTotalCustomers();
-          const names = await getCustomerNames(); // ✅ Fetch customer names for autocomplete
+          const names = await getCustomerNames();
 
           setTotalDeliveries(deliveriesCount);
-          setTotalQuantity(quantitySum);
+          setBuffaloQuantity(buffaloMilk);  // ✅ Set Buffalo quantity
+          setCowQuantity(cowMilk);  // ✅ Set Cow quantity
           setTotalCustomers(customersCount);
           setCustomerNames(names);
         } catch (error) {
@@ -63,7 +65,6 @@ const OverviewDashboardScreen = () => {
     }
   };
 
-  // ✅ Filter customer names based on input
   const filteredSuggestions = customerNames.filter(name =>
     name.toLowerCase().startsWith(searchTerm.toLowerCase())
   );
@@ -72,21 +73,18 @@ const OverviewDashboardScreen = () => {
     <View style={styles.container}>
       <Text style={styles.heading}>Dashboard Overview</Text>
 
-      {/* ✅ Month Selector */}
       <Picker selectedValue={selectedMonth} onValueChange={setSelectedMonth} style={styles.picker}>
         {Array.from({ length: 12 }, (_, index) => (
           <Picker.Item key={index + 1} label={`Month ${index + 1}`} value={index + 1} />
         ))}
       </Picker>
 
-      {/* ✅ Year Selector */}
       <Picker selectedValue={selectedYear} onValueChange={setSelectedYear} style={styles.picker}>
         {Array.from({ length: 5 }, (_, index) => (
           <Picker.Item key={index} label={`Year ${new Date().getFullYear() - index}`} value={(new Date().getFullYear() - index).toString()} />
         ))}
       </Picker>
 
-      {/* ✅ Key Metrics Section */}
       {loading ? (
         <ActivityIndicator size="large" color="#007BFF" />
       ) : (
@@ -97,13 +95,16 @@ const OverviewDashboardScreen = () => {
           <Text style={styles.metric}>
             <Ionicons name="cart-outline" size={24} color="#007BFF" /> Total Deliveries: {totalDeliveries}
           </Text>
+          {/* ✅ Separated Buffalo and Cow Milk Totals */}
           <Text style={styles.metric}>
-            <Ionicons name="cube-outline" size={24} color="#28a745" /> Total Quantity Delivered: {totalQuantity} units
+            <Ionicons name="cube-outline" size={24} color="#007BFF" /> 🐃 Buffalo Milk: {buffaloQuantity} L
+          </Text>
+          <Text style={styles.metric}>
+            <Ionicons name="cube-outline" size={24} color="#28a745" /> 🐄 Cow Milk: {cowQuantity} L
           </Text>
         </View>
       )}
 
-      {/* ✅ Search Input with Autocomplete */}
       <TextInput
         style={styles.input}
         placeholder="Search by Date (YYYY-MM-DD) or Name"
@@ -111,7 +112,6 @@ const OverviewDashboardScreen = () => {
         onChangeText={handleSearch}
       />
 
-      {/* ✅ Autocomplete Suggestions */}
       {searchTerm.length > 0 && (
         <FlatList
           data={filteredSuggestions}
@@ -124,7 +124,6 @@ const OverviewDashboardScreen = () => {
         />
       )}
 
-      {/* ✅ Search Results */}
       {searchLoading ? (
         <ActivityIndicator size="large" color="#007BFF" />
       ) : (

@@ -35,6 +35,39 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
+## **🛠 Building the Android App**
+Once development is complete, follow these steps to **build and deploy your Android app**:
+
+### **1️⃣ Install EAS CLI**
+Expo’s **EAS (Expo Application Services)** allows you to **build and distribute** native apps. Install it using:
+```bash
+npm install -g eas-cli
+```
+
+### **2️⃣ Configure EAS**
+Inside your project directory, initialize EAS:
+```bash
+eas init
+```
+
+### **3️⃣ Build an APK (Standalone Android App)**
+To generate an APK for manual installation:
+```bash
+eas build --platform android --profile preview
+```
+If you want to build for **Google Play Store**, use:
+```bash
+eas build --platform android --profile production
+```
+🔥 **After the build completes, you'll get a direct APK download link!**
+
+### **4️⃣ Install the APK on Your Device**
+Once the build is done:
+- Download the APK from the **Expo build link**.
+- Transfer the APK to your Android device.
+- Install it manually and **test the app**!
+
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
