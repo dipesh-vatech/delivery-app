@@ -195,12 +195,13 @@ export const getDeliveriesByDate = async (month, year) => {
         customers.name AS customerName,
         deliveries.customer_id,
         deliveries.date,
-        SUM(deliveries.quantity) AS total_quantity
+        SUM(deliveries.quantity) AS total_quantity,
+        GROUP_CONCAT(deliveries.milk_type || ' - ' || deliveries.quantity || ' L', ', ') AS milk_details
       FROM deliveries
       JOIN customers ON deliveries.customer_id = customers.id
       WHERE strftime('%Y-%m', deliveries.date) = ?
-      GROUP BY deliveries.customer_id, deliveries.date
-      ORDER BY customers.name ASC, deliveries.date ASC;
+      GROUP BY deliveries.customer_id
+      ORDER BY customers.name ASC;
       `,
       [`${year}-${month}`] // Format: YYYY-MM
     );
